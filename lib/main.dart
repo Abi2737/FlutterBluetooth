@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterbluetoooth/pages/FindDevicesPage.dart';
 import 'package:flutterbluetoooth/pages/HomePage.dart';
 
 void main() {
@@ -21,6 +22,7 @@ class CarControllerApp extends StatelessWidget {
       ),
       routes: {
         "/": (context) => HomePage(),
+        "/find_devices": (context) => FindDevicesPage()
       },
     );
   }
