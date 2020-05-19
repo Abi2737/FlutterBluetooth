@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutterbluetoooth/pages/FindDevicesPage.dart';
 import 'package:flutterbluetoooth/widgets/BluetoothStatusWidget.dart';
 
 class HomePage extends StatelessWidget {
@@ -33,14 +34,17 @@ class HomePage extends StatelessWidget {
                 children: <Widget>[
                   RaisedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, "/find_devices");
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => FindDevicesPage()));
                     },
                     child: const Text('Find devices'),
                   ),
                   RaisedButton(
-                    onPressed: state != BluetoothState.on ? null : () {
-                      Navigator.pushNamed(context, "/send_data");
-                    },
+                    onPressed: state != BluetoothState.on
+                        ? null
+                        : () {
+//                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SendData()))
+                          },
                     child: const Text('Send data'),
                   ),
                 ],

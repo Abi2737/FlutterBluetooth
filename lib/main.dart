@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutterbluetoooth/pages/FindDevicesPage.dart';
 import 'package:flutterbluetoooth/pages/HomePage.dart';
 
 void main() {
@@ -21,10 +20,7 @@ class CarControllerApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      routes: {
-        "/": (context) => HomePage(),
-        "/find_devices": (context) => FindDevicesPage()
-      },
+      home: HomePage(),
     );
   }
 }

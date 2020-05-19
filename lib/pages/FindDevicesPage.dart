@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutterbluetoooth/pages/DevicePage.dart';
 import 'package:flutterbluetoooth/widgets/ConnectedDeviceTile.dart';
 import 'package:flutterbluetoooth/widgets/ScanResultTile.dart';
 
@@ -27,7 +28,9 @@ class FindDevicesPage extends StatelessWidget {
                       .map((device) => ConnectedDeviceTile(
                             device: device,
                             onTap: () {
-                              print("aaaaaaa");
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      DevicePage(device: device)));
                             },
                           ))
                       .toList(),
@@ -41,7 +44,10 @@ class FindDevicesPage extends StatelessWidget {
                       .map((result) => ScanResultTile(
                             result: result,
                             onTap: () {
-                              print("bbbbbbbb");
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => DevicePage(
+                                        device: result.device,
+                                      )));
                             },
                           ))
                       .toList(),
