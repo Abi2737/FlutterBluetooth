@@ -5,7 +5,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 class BluetoothStatusWidget extends StatelessWidget {
   final BluetoothState state;
 
-  const BluetoothStatusWidget({Key key, @required this.state});
+  const BluetoothStatusWidget({Key key, this.state}) : super(key: key);
 
   Widget _getIcon() {
     if (state == BluetoothState.on) {
@@ -25,7 +25,7 @@ class BluetoothStatusWidget extends StatelessWidget {
 
   String _getText() {
     if (state == BluetoothState.on) {
-      return "Bluetooth Adapter is connected";
+      return "Bluetooth Adapter is on.";
     }
 
     return "Bluetooth Adapter is ${state != null ? state.toString().substring(15) : 'not available'}.";

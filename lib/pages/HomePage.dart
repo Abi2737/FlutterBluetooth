@@ -32,10 +32,16 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   RaisedButton(
-                    onPressed: state != BluetoothState.on ? null : () {
+                    onPressed: () {
                       Navigator.pushNamed(context, "/find_devices");
                     },
                     child: const Text('Find devices'),
+                  ),
+                  RaisedButton(
+                    onPressed: state != BluetoothState.on ? null : () {
+                      Navigator.pushNamed(context, "/send_data");
+                    },
+                    child: const Text('Send data'),
                   ),
                 ],
               ),
