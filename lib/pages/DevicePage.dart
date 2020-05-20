@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -9,16 +10,18 @@ import 'package:flutterbluetoooth/widgets/ServiceTile.dart';
 
 class DevicePage extends StatelessWidget {
   final BluetoothDevice device;
+  final _writeController = TextEditingController();
 
-  const DevicePage({Key key, this.device}) : super(key: key);
+  DevicePage({Key key, this.device}) : super(key: key);
+
 
   List<int> _getRandomBytes() {
     final math = Random();
     return [
-      1,
-      1,
-      1,
-      1
+      0,
+      0,
+      0,
+      49
     ];
   }
 
@@ -155,6 +158,58 @@ class DevicePage extends StatelessWidget {
                 );
               },
             ),
+            RaisedButton(
+              child: Text("Write to All"),
+              onPressed: () async {
+                await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Write"),
+                    content: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            controller: _writeController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Send"),
+                        onPressed: () {
+                          device.services.asBroadcastStream().listen((List<BluetoothService> services) {
+                            services.forEach((service) {
+                              service.characteristics.forEach((c) async {
+                                if (c.properties.write) {
+                                  print("Here: ${c.uuid} -> $c");
+                                  try {
+                                    await c.write(utf8.encode(
+                                        _writeController.value.text),
+                                        withoutResponse: true);
+                                    await c.read();
+                                  } catch (e) {
+                                    print(e);
+                                  }
+                                }
+                              });
+                            });
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text("Cancel"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  );
+                });
+              }
+            )
           ],
         ),
       ),
