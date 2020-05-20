@@ -15,6 +15,8 @@ class ConnectedDeviceTile extends StatelessWidget {
       title: Text(device.name),
       subtitle: Text(device.id.toString()),
       trailing: StreamBuilder<BluetoothDeviceState>(
+        stream: device.state,
+        initialData: BluetoothDeviceState.disconnected,
         builder: (context, snapshot) {
           if (snapshot.data == BluetoothDeviceState.connected) {
             return RaisedButton(

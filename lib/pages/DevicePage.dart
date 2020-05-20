@@ -15,10 +15,10 @@ class DevicePage extends StatelessWidget {
   List<int> _getRandomBytes() {
     final math = Random();
     return [
-      math.nextInt(255),
-      math.nextInt(255),
-      math.nextInt(255),
-      math.nextInt(255)
+      1,
+      1,
+      1,
+      1
     ];
   }
 
