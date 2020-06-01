@@ -40,18 +40,25 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
     }
   }
 
-  void _addConnectedDevice(BluetoothDevice device) {
-    bool shouldRefresh = _connectedDevices.add(device);
+  void _addConnectedDevice(ScanResult scanResult) {
+    _scanResults.remove(scanResult);
+    _connectedDevices.add(scanResult.device);
+    _refresh();
+  }
 
-    if (shouldRefresh) {
-      _refresh();
-    }
+  void _removeConnectedDevice(BluetoothDevice device) {
+    _connectedDevices.remove(device);
+    _refresh();
   }
 
   void _addScanResults(List<ScanResult> results) {
     bool shouldRefresh = false;
 
     for (ScanResult result in results) {
+      if (_connectedDevices.contains(result.device)) {
+        continue;
+      }
+
       shouldRefresh = shouldRefresh || _scanResults.add(result);
     }
 
@@ -97,11 +104,16 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
 
     for (BluetoothDevice device in _connectedDevices) {
       result.add(ConnectedDeviceTile(
-          device: device,
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => DevicePage(device: device)));
-          }));
+        device: device,
+        onSelect: () {},
+        onOpen: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DevicePage(device: device)));
+        },
+        onDisconnect: () {
+          device.disconnect().then((_) => _removeConnectedDevice(device));
+        },
+      ));
     }
 
     return result;
@@ -116,7 +128,7 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
         onTap: () {
           scanResult.device
               .connect()
-              .then((_) => _addConnectedDevice(scanResult.device));
+              .then((_) => _addConnectedDevice(scanResult));
         },
       ));
     }
