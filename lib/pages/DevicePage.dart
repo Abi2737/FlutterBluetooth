@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,18 +13,51 @@ class DevicePage extends StatelessWidget {
 
   DevicePage({Key key, this.device}) : super(key: key);
 
+  Future<String> _showDialog(BuildContext context) async {
+    String textToSend;
 
-  List<int> _getRandomBytes() {
-    final math = Random();
-    return [
-      0,
-      0,
-      0,
-      49
-    ];
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Write"),
+          content: Row(
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: _writeController,
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Send"),
+              onPressed: () {
+                textToSend = _writeController.value.text;
+                Navigator.pop(context);
+              },
+            ),
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    return textToSend;
   }
 
-  List<Widget> _buildServiceTiles(List<BluetoothService> services) {
+  List<Widget> _buildServiceTiles(
+      BuildContext context, List<BluetoothService> services) {
+    if (services == null) {
+      return List();
+    }
+
     return services
         .map(
           (s) => ServiceTile(
@@ -36,8 +68,12 @@ class DevicePage extends StatelessWidget {
                     characteristic: c,
                     onReadPressed: () => c.read(),
                     onWritePressed: () async {
-                      await c.write(_getRandomBytes(), withoutResponse: true);
-                      await c.read();
+                      String toSend = await _showDialog(context);
+                      if (toSend == null) {
+                        return;
+                      }
+
+                      c.write(utf8.encode(toSend), withoutResponse: true);
                     },
                     onNotificationPressed: () async {
                       await c.setNotifyValue(!c.isNotifying);
@@ -48,7 +84,14 @@ class DevicePage extends StatelessWidget {
                           (d) => DescriptorTile(
                             descriptor: d,
                             onReadPressed: () => d.read(),
-                            onWritePressed: () => d.write(_getRandomBytes()),
+                            onWritePressed: () async {
+                              String toSend = await _showDialog(context);
+                              if (toSend == null) {
+                                return;
+                              }
+
+                              d.write(utf8.encode(toSend));
+                            },
                           ),
                         )
                         .toList(),
@@ -65,39 +108,7 @@ class DevicePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(device.name),
-        actions: <Widget>[
-          StreamBuilder<BluetoothDeviceState>(
-            stream: device.state,
-            initialData: BluetoothDeviceState.connecting,
-            builder: (c, snapshot) {
-              VoidCallback onPressed;
-              String text;
-              switch (snapshot.data) {
-                case BluetoothDeviceState.connected:
-                  onPressed = () => device.disconnect();
-                  text = 'DISCONNECT';
-                  break;
-                case BluetoothDeviceState.disconnected:
-                  onPressed = () => device.connect();
-                  text = 'CONNECT';
-                  break;
-                default:
-                  onPressed = null;
-                  text = snapshot.data.toString().substring(21).toUpperCase();
-                  break;
-              }
-              return FlatButton(
-                  onPressed: onPressed,
-                  child: Text(
-                    text,
-                    style: Theme.of(context)
-                        .primaryTextTheme
-                        .button
-                        .copyWith(color: Colors.white),
-                  ));
-            },
-          )
-        ],
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -154,62 +165,10 @@ class DevicePage extends StatelessWidget {
               initialData: [],
               builder: (c, snapshot) {
                 return Column(
-                  children: _buildServiceTiles(snapshot.data),
+                  children: _buildServiceTiles(context, snapshot.data),
                 );
               },
             ),
-            RaisedButton(
-              child: Text("Write to All"),
-              onPressed: () async {
-                await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Write"),
-                    content: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextField(
-                            controller: _writeController,
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text("Send"),
-                        onPressed: () {
-                          device.services.asBroadcastStream().listen((List<BluetoothService> services) {
-                            services.forEach((service) {
-                              service.characteristics.forEach((c) async {
-                                if (c.properties.write) {
-                                  print("Here: ${c.uuid} -> $c");
-                                  try {
-                                    await c.write(utf8.encode(
-                                        _writeController.value.text),
-                                        withoutResponse: true);
-                                    await c.read();
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                }
-                              });
-                            });
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                      FlatButton(
-                        child: Text("Cancel"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  );
-                });
-              }
-            )
           ],
         ),
       ),

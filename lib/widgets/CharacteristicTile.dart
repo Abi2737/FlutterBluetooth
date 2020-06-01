@@ -11,14 +11,50 @@ class CharacteristicTile extends StatelessWidget {
   final VoidCallback onWritePressed;
   final VoidCallback onNotificationPressed;
 
-  const CharacteristicTile(
-      {Key key,
-      this.characteristic,
-      this.descriptorTiles,
-      this.onReadPressed,
-      this.onWritePressed,
-      this.onNotificationPressed})
-      : super(key: key);
+  const CharacteristicTile({
+    Key key,
+    this.characteristic,
+    this.descriptorTiles,
+    this.onReadPressed,
+    this.onWritePressed,
+    this.onNotificationPressed,
+  }) : super(key: key);
+
+  List<Widget> _buildReadWriteNotify(BuildContext context) {
+    List<Widget> result = new List();
+
+    if (characteristic.properties.notify) {
+      result.add(IconButton(
+        icon: Icon(
+          characteristic.isNotifying ? Icons.sync_disabled : Icons.sync,
+          color: Theme.of(context).iconTheme.color.withOpacity(0.5),
+        ),
+        onPressed: onNotificationPressed,
+      ));
+    }
+
+    if (characteristic.properties.write) {
+      result.add(IconButton(
+        icon: Icon(
+          Icons.file_upload,
+          color: Theme.of(context).iconTheme.color.withOpacity(0.5),
+        ),
+        onPressed: onWritePressed,
+      ));
+    }
+
+    if (characteristic.properties.read) {
+      result.add(IconButton(
+        icon: Icon(
+          Icons.file_download,
+          color: Theme.of(context).iconTheme.color.withOpacity(0.5),
+        ),
+        onPressed: onReadPressed,
+      ));
+    }
+
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,26 +82,7 @@ class CharacteristicTile extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.file_download,
-                  color: Theme.of(context).iconTheme.color.withOpacity(0.5),
-                ),
-                onPressed: onReadPressed,
-              ),
-              IconButton(
-                icon: Icon(Icons.file_upload,
-                    color: Theme.of(context).iconTheme.color.withOpacity(0.5)),
-                onPressed: onWritePressed,
-              ),
-              IconButton(
-                icon: Icon(
-                    characteristic.isNotifying
-                        ? Icons.sync_disabled
-                        : Icons.sync,
-                    color: Theme.of(context).iconTheme.color.withOpacity(0.5)),
-                onPressed: onNotificationPressed,
-              )
+              ..._buildReadWriteNotify(context)
             ],
           ),
           children: descriptorTiles,

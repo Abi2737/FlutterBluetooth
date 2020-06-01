@@ -7,9 +7,12 @@ class DescriptorTile extends StatelessWidget {
   final VoidCallback onReadPressed;
   final VoidCallback onWritePressed;
 
-  const DescriptorTile(
-      {Key key, this.descriptor, this.onReadPressed, this.onWritePressed})
-      : super(key: key);
+  const DescriptorTile({
+    Key key,
+    this.descriptor,
+    this.onReadPressed,
+    this.onWritePressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,18 +39,16 @@ class DescriptorTile extends StatelessWidget {
         children: <Widget>[
           IconButton(
             icon: Icon(
-              Icons.file_download,
-              color: Theme.of(context).iconTheme.color.withOpacity(0.5),
-            ),
-            onPressed: onReadPressed,
-          ),
-          IconButton(
-            icon: Icon(
               Icons.file_upload,
               color: Theme.of(context).iconTheme.color.withOpacity(0.5),
             ),
             onPressed: onWritePressed,
-          )
+          ),
+          IconButton(
+            icon: Icon(Icons.file_download,
+                color: Theme.of(context).iconTheme.color.withOpacity(0.5)),
+            onPressed: onReadPressed,
+          ),
         ],
       ),
     );

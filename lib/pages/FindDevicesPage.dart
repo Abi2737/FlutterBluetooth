@@ -22,6 +22,23 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
 
   bool _isScanning = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    // add connected devices
+    _flutterBlue.connectedDevices.asStream().listen(_addConnectedDevices);
+
+    // add scanning results
+    _flutterBlue.scanResults.listen(_addScanResults);
+
+    // listen for scanning event
+    _flutterBlue.isScanning.listen(_onScanningEvent);
+
+    // start scanning
+    _startScan();
+  }
+
   void _refresh() {
     if (this.mounted) {
       setState(() {});
@@ -29,7 +46,6 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
   }
 
   void _addConnectedDevices(List<BluetoothDevice> devices) {
-    print("SIZE: ${devices.length} -> $devices");
     bool shouldRefresh = false;
 
     for (BluetoothDevice device in devices) {
@@ -79,25 +95,15 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
 
   void _startScan() {
     _isScanning = true;
+    _refresh();
+
     _scanResults.clear();
     _flutterBlue.startScan(timeout: Duration(seconds: SCAN_TIME));
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    // add connected devices
-    _flutterBlue.connectedDevices.asStream().listen(_addConnectedDevices);
-
-    // add scanning results
-    _flutterBlue.scanResults.listen(_addScanResults);
-
-    // listen for scanning event
-    _flutterBlue.isScanning.listen(_onScanningEvent);
-
-    // start scanning
-    _startScan();
+  void _onSelectDevice(BluetoothDevice device) async {
+    BluetoothCommunication.instance.device = device;
+    Navigator.of(context).pop();
   }
 
   List<Widget> _buildListViewOfConnectedDevices() {
@@ -106,10 +112,7 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
     for (BluetoothDevice device in _connectedDevices) {
       result.add(ConnectedDeviceTile(
         device: device,
-        onSelect: () {
-          BluetoothCommunication.instance.device = device;
-          Navigator.of(context).pop();
-        },
+        onSelect: () => _onSelectDevice(device),
         onOpen: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DevicePage(device: device)));

@@ -26,7 +26,7 @@ class _ConnectedDeviceTileState extends State<ConnectedDeviceTile> {
   }
 
   String _getDeviceStateString() {
-    return _deviceState.toString().substring(21);
+    return _deviceState.toString().split('.')[1];
   }
 
   @override
