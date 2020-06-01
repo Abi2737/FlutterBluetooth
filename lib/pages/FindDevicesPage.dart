@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutterbluetoooth/pages/DevicePage.dart';
+import 'package:flutterbluetoooth/utils/BluetoothCommunication.dart';
 import 'package:flutterbluetoooth/widgets/ConnectedDeviceTile.dart';
 import 'package:flutterbluetoooth/widgets/ScanResultTile.dart';
 
@@ -105,7 +106,10 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
     for (BluetoothDevice device in _connectedDevices) {
       result.add(ConnectedDeviceTile(
         device: device,
-        onSelect: () {},
+        onSelect: () {
+          BluetoothCommunication.instance.device = device;
+          Navigator.of(context).pop();
+        },
         onOpen: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DevicePage(device: device)));
