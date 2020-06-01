@@ -50,6 +50,7 @@ class _ConnectedDeviceTileState extends State<ConnectedDeviceTile> {
       return RaisedButton(
         child: Text("SELECT"),
         color: Colors.blue,
+        textColor: Colors.white,
         onPressed: widget.onSelect,
       );
     }
@@ -62,6 +63,7 @@ class _ConnectedDeviceTileState extends State<ConnectedDeviceTile> {
     if (_deviceState == BluetoothDeviceState.connected) {
       secondWidget = RaisedButton(
         child: Text("OPEN"),
+        textColor: Colors.white,
         color: Colors.green[300],
         onPressed: widget.onOpen,
       );
@@ -77,6 +79,7 @@ class _ConnectedDeviceTileState extends State<ConnectedDeviceTile> {
           RaisedButton(
             child: Text("DISCONNECT"),
             color: Colors.red[300],
+            textColor: Colors.white,
             onPressed: widget.onDisconnect,
           ),
           secondWidget

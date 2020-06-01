@@ -33,19 +33,25 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   RaisedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => FindDevicesPage()));
-                    },
                     child: const Text('Find devices'),
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    onPressed: state != BluetoothState.on
+                        ? null
+                        : () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => FindDevicesPage()));
+                          },
                   ),
                   RaisedButton(
+                    child: const Text('Send data'),
+                    color: Colors.blue,
+                    textColor: Colors.white,
                     onPressed: state != BluetoothState.on
                         ? null
                         : () {
 //                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SendData()))
                           },
-                    child: const Text('Send data'),
                   ),
                 ],
               ),
