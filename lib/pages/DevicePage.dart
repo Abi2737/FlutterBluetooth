@@ -75,7 +75,7 @@ class DevicePage extends StatelessWidget {
 
                       c.write(utf8.encode(toSend), withoutResponse: true);
                     },
-                    onNotificationPressed: () async {
+                    onNotifyPressed: () async {
                       await c.setNotifyValue(!c.isNotifying);
                       await c.read();
                     },

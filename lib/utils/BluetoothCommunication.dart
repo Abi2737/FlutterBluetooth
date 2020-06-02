@@ -23,14 +23,36 @@ class BluetoothCommunication {
 
   Stream get isReady => _isReadyController.stream;
 
+  StreamController _onNewValueController = new StreamController.broadcast();
+
+  Stream get onNewValue => _onNewValueController.stream;
+
   set device(BluetoothDevice device) {
     _device = device;
     _device.state.listen((newState) {
       _isReadyController.add(newState == BluetoothDeviceState.connected);
     });
-    _device.discoverServices().then((services) => _services = services);
+    _device.discoverServices().then((services) {
+      _services = services;
+
+      _findNotifyingCharacteristics();
+    });
 
     _onNewDeviceController.add(_device);
+  }
+
+  void _findNotifyingCharacteristics() {
+    _services.forEach((service) {
+      service.characteristics.forEach((c) async {
+        if (c.properties.notify) {
+          c.value.listen((newValue) {
+            _onNewValueController.add(newValue);
+          });
+
+          await c.setNotifyValue(true);
+        }
+      });
+    });
   }
 
   String getDeviceName() {
@@ -60,7 +82,7 @@ class BluetoothCommunication {
           try {
             c
                 .write(encodedData, withoutResponse: true)
-                .catchError((error) => print(error));
+                .catchError((error) => print("Write Error: $error"));
           } catch (e) {
             print(e);
           }

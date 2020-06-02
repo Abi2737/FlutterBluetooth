@@ -9,7 +9,7 @@ class CharacteristicTile extends StatelessWidget {
   final List<DescriptorTile> descriptorTiles;
   final VoidCallback onReadPressed;
   final VoidCallback onWritePressed;
-  final VoidCallback onNotificationPressed;
+  final VoidCallback onNotifyPressed;
 
   const CharacteristicTile({
     Key key,
@@ -17,41 +17,47 @@ class CharacteristicTile extends StatelessWidget {
     this.descriptorTiles,
     this.onReadPressed,
     this.onWritePressed,
-    this.onNotificationPressed,
+    this.onNotifyPressed,
   }) : super(key: key);
 
   List<Widget> _buildReadWriteNotify(BuildContext context) {
     List<Widget> result = new List();
 
-    if (characteristic.properties.notify) {
-      result.add(IconButton(
+    // notify characteristic
+    result.add(Opacity(
+      opacity: characteristic.properties.notify ? 1 : 0,
+      child: IconButton(
         icon: Icon(
           characteristic.isNotifying ? Icons.sync_disabled : Icons.sync,
           color: Theme.of(context).iconTheme.color.withOpacity(0.5),
         ),
-        onPressed: onNotificationPressed,
-      ));
-    }
+        onPressed: onNotifyPressed,
+      ),
+    ));
 
-    if (characteristic.properties.write) {
-      result.add(IconButton(
+    // write characteristic
+    result.add(Opacity(
+      opacity: characteristic.properties.write ? 1 : 0,
+      child: IconButton(
         icon: Icon(
           Icons.file_upload,
           color: Theme.of(context).iconTheme.color.withOpacity(0.5),
         ),
         onPressed: onWritePressed,
-      ));
-    }
+      ),
+    ));
 
-    if (characteristic.properties.read) {
-      result.add(IconButton(
+    // read characteristic
+    result.add(Opacity(
+      opacity: characteristic.properties.read ? 1 : 0,
+      child: IconButton(
         icon: Icon(
           Icons.file_download,
           color: Theme.of(context).iconTheme.color.withOpacity(0.5),
         ),
         onPressed: onReadPressed,
-      ));
-    }
+      ),
+    ));
 
     return result;
   }
@@ -81,9 +87,7 @@ class CharacteristicTile extends StatelessWidget {
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ..._buildReadWriteNotify(context)
-            ],
+            children: <Widget>[..._buildReadWriteNotify(context)],
           ),
           children: descriptorTiles,
         );

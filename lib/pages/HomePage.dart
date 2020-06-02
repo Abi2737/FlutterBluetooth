@@ -13,15 +13,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isCommunicationReady = false;
-  BluetoothState _bluetootState = BluetoothState.unknown;
+  BluetoothState _bluetoothState = BluetoothState.unknown;
 
   @override
   void initState() {
     super.initState();
 
     FlutterBlue.instance.state.listen((newState) {
-      if (newState != _bluetootState) {
-        _bluetootState = newState;
+      if (newState != _bluetoothState) {
+        _bluetoothState = newState;
         _refresh();
       }
     });
@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
 
   void _refresh() {
     if (this.mounted) {
-      print("REFRESHHHHHHH");
       setState(() {});
     }
   }
@@ -52,8 +51,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: <Widget>[
-          BluetoothStatusWidget(state: _bluetootState),
-          BluetoothCommunicationStatusWidget(bluetoothState: _bluetootState),
+          BluetoothStatusWidget(state: _bluetoothState),
+          BluetoothCommunicationStatusWidget(bluetoothState: _bluetoothState),
           Expanded(
             child: Center(
               child: Column(
@@ -64,12 +63,12 @@ class _HomePageState extends State<HomePage> {
                     child: const Text('Find devices'),
                     color: Colors.blue,
                     textColor: Colors.white,
-                    onPressed: _bluetootState != BluetoothState.on
+                    onPressed: _bluetoothState != BluetoothState.on
                         ? null
                         : () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => FindDevicesPage()));
-                    },
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => FindDevicesPage()));
+                          },
                   ),
                   RaisedButton(
                     child: const Text('Communication Page'),
@@ -78,9 +77,9 @@ class _HomePageState extends State<HomePage> {
                     onPressed: !_isCommunicationReady
                         ? null
                         : () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CommunicationPage()));
-                    },
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => CommunicationPage()));
+                          },
                   ),
                 ],
               ),
