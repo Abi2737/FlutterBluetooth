@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutterbluetoooth/pages/CommunicationPage.dart';
 import 'package:flutterbluetoooth/pages/FindDevicesPage.dart';
 import 'package:flutterbluetoooth/utils/BluetoothCommunication.dart';
 import 'package:flutterbluetoooth/widgets/BluetoothStatusWidget.dart';
@@ -10,12 +11,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _isCommunicationReady = false;
 
   @override
   void initState() {
     super.initState();
 
     BluetoothCommunication.instance.onNewDevice.listen((_) => _refresh());
+
+    BluetoothCommunication.instance.isReady.listen((isReady) {
+      if (isReady != _isCommunicationReady) {
+        _isCommunicationReady = isReady;
+        _refresh();
+      }
+    });
   }
 
   void _refresh() {
@@ -28,7 +37,11 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Column(
         children: <Widget>[
-          BluetoothStatusWidget(state: state),
+          BluetoothStatusWidget(
+            state: state,
+            deviceName: BluetoothCommunication.instance.getDeviceName(),
+            deviceState: BluetoothCommunication.instance.getDeviceState(),
+          ),
           Expanded(
             child: Center(
               child: Column(
@@ -47,13 +60,14 @@ class _HomePageState extends State<HomePage> {
                           },
                   ),
                   RaisedButton(
-                    child: const Text('Send data'),
+                    child: const Text('Communication Page'),
                     color: Colors.blue,
                     textColor: Colors.white,
-                    onPressed: state != BluetoothState.on
+                    onPressed: !_isCommunicationReady
                         ? null
                         : () {
-//                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SendData()))
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => CommunicationPage()));
                           },
                   ),
                 ],
