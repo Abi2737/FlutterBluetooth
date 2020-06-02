@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -15,9 +16,11 @@ class BluetoothCommunication {
   List<BluetoothService> _services;
 
   StreamController _onNewDeviceController = new StreamController.broadcast();
+
   Stream get onNewDevice => _onNewDeviceController.stream;
 
   StreamController _isReadyController = new StreamController.broadcast();
+
   Stream get isReady => _isReadyController.stream;
 
   set device(BluetoothDevice device) {
@@ -39,6 +42,30 @@ class BluetoothCommunication {
   }
 
   Stream<BluetoothDeviceState> getDeviceState() {
+    if (_device == null) {
+      return null;
+    }
+
     return _device.state;
+  }
+
+  void sendData(String data) {
+    var encodedData = utf8.encode(data);
+
+    // write encodedData to all the characteristics that have write option
+    // not sure if it's a good approach
+    _services.forEach((service) {
+      service.characteristics.forEach((c) {
+        if (c.properties.write) {
+          try {
+            c
+                .write(encodedData, withoutResponse: true)
+                .catchError((error) => print(error));
+          } catch (e) {
+            print(e);
+          }
+        }
+      });
+    });
   }
 }
