@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_blue/flutter_blue.dart';
 
 class BluetoothCommunication{
@@ -10,8 +12,25 @@ class BluetoothCommunication{
   BluetoothDevice _device;
   List<BluetoothService> _services;
 
+  StreamController _onNewDeviceController = new StreamController.broadcast();
+  Stream get onNewDevice => _onNewDeviceController.stream;
+
   set device(BluetoothDevice device) {
     _device = device;
     _device.discoverServices().then((services) => _services = services);
+    
+    _onNewDeviceController.add(_device);
+  }
+
+  String getDeviceName() {
+    if (_device == null) {
+      return null;
+    }
+
+    return _device.name;
+  }
+
+  Stream<BluetoothDeviceState> getDeviceState() {
+    return _device.state;
   }
 }
