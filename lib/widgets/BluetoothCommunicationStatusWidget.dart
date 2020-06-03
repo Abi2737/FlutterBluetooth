@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -17,6 +19,7 @@ class BluetoothCommunicationStatusWidget extends StatefulWidget {
 class _BluetoothCommunicationStatusWidgetState
     extends State<BluetoothCommunicationStatusWidget> {
   var _deviceState = BluetoothDeviceState.connecting;
+  List<StreamSubscription> _streamSubscriptions = List();
 
   @override
   void initState() {
@@ -32,12 +35,16 @@ class _BluetoothCommunicationStatusWidgetState
     var deviceState = BluetoothCommunication.instance.getDeviceState();
 
     if (deviceState != null) {
-      deviceState.listen((newState) {
-        if (newState != _deviceState) {
-          _deviceState = newState;
-          _refresh();
-        }
-      });
+      _streamSubscriptions.add(
+        deviceState.listen(
+              (newState) {
+            if (newState != _deviceState) {
+              _deviceState = newState;
+              _refresh();
+            }
+          },
+        ),
+      );
     }
   }
 
@@ -74,5 +81,12 @@ class _BluetoothCommunicationStatusWidgetState
   @override
   Widget build(BuildContext context) {
     return _getSelectedDeviceStatusWidget(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _streamSubscriptions.forEach((subscription) => subscription.cancel());
   }
 }

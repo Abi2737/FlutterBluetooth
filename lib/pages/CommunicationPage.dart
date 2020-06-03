@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterbluetoooth/utils/BluetoothCommunication.dart';
@@ -25,6 +27,7 @@ class _CommunicationPageState extends State<CommunicationPage> {
   TextEditingController _writeController = TextEditingController();
   List<OutputData> _deviceOutputs = List();
   ScrollController _scrollController = ScrollController();
+  List<StreamSubscription> _streamSubscriptions = List();
 
   bool _enableAutoScroll = true;
 
@@ -32,21 +35,25 @@ class _CommunicationPageState extends State<CommunicationPage> {
   void initState() {
     super.initState();
 
-    BluetoothCommunication.instance.onNewValue.listen((newValue) {
-      print(
-          "NEW bluetooth value: ${newValue.toString()} -> ${String.fromCharCodes(newValue)}");
+    _streamSubscriptions.add(
+      BluetoothCommunication.instance.onNewValue.listen(
+        (newValue) {
+          print(
+              "NEW bluetooth value: ${newValue.toString()} -> ${String.fromCharCodes(newValue)}");
 
-      var decodedValue = String.fromCharCodes(newValue);
+          var decodedValue = String.fromCharCodes(newValue);
 
-      if (_deviceOutputs.length > 0 &&
-          _deviceOutputs.last.data == decodedValue) {
-        _deviceOutputs.last.increase();
-      } else {
-        _deviceOutputs.add(OutputData(decodedValue));
-      }
+          if (_deviceOutputs.length > 0 &&
+              _deviceOutputs.last.data == decodedValue) {
+            _deviceOutputs.last.increase();
+          } else {
+            _deviceOutputs.add(OutputData(decodedValue));
+          }
 
-      _refresh();
-    });
+          _refresh();
+        },
+      ),
+    );
   }
 
   void _refresh() {
@@ -67,7 +74,9 @@ class _CommunicationPageState extends State<CommunicationPage> {
   Widget _buildDeviceOutputWidget(int index) {
     return ListTile(
       title: Text(_deviceOutputs[index].data),
-      leading: Text(_deviceOutputs[index].numOfAppearances > 1 ? _deviceOutputs[index].numOfAppearances.toString() : ""),
+      leading: Text(_deviceOutputs[index].numOfAppearances > 1
+          ? _deviceOutputs[index].numOfAppearances.toString()
+          : ""),
       trailing: Text(index.toString()),
       dense: true,
     );
@@ -133,34 +142,42 @@ class _CommunicationPageState extends State<CommunicationPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Communication Page"),
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(),
-            child: Column(
-              children: <Widget>[
-                _buildDataOutputWidget(),
-                _buildDataInputWidget(),
-                Padding(
-                  padding: const EdgeInsets.all(64.0),
-                  child: RaisedButton(
-                    child: Text(_enableAutoScroll
-                        ? "Pause auto scroll"
-                        : "Resume auto scroll"),
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      _enableAutoScroll = !_enableAutoScroll;
-                      _refresh();
-                    },
-                  ),
+      appBar: AppBar(
+        title: Text("Communication Page"),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(),
+          child: Column(
+            children: <Widget>[
+              _buildDataOutputWidget(),
+              _buildDataInputWidget(),
+              Padding(
+                padding: const EdgeInsets.all(64.0),
+                child: RaisedButton(
+                  child: Text(_enableAutoScroll
+                      ? "Pause auto scroll"
+                      : "Resume auto scroll"),
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                  onPressed: () {
+                    _enableAutoScroll = !_enableAutoScroll;
+                    _refresh();
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _streamSubscriptions.forEach((subscription) => subscription.cancel());
   }
 }

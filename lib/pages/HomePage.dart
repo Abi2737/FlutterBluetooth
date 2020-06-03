@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutterbluetoooth/pages/CommunicationPage.dart';
@@ -14,26 +16,37 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isCommunicationReady = false;
   BluetoothState _bluetoothState = BluetoothState.unknown;
+  List<StreamSubscription> _streamSubscriptions = List();
 
   @override
   void initState() {
     super.initState();
 
-    FlutterBlue.instance.state.listen((newState) {
-      if (newState != _bluetoothState) {
-        _bluetoothState = newState;
-        _refresh();
-      }
-    });
+    _streamSubscriptions.add(
+      FlutterBlue.instance.state.listen(
+            (newState) {
+          if (newState != _bluetoothState) {
+            _bluetoothState = newState;
+            _refresh();
+          }
+        },
+      ),
+    );
 
-    BluetoothCommunication.instance.onNewDevice.listen((_) => _refresh());
+    _streamSubscriptions.add(
+      BluetoothCommunication.instance.onNewDevice.listen((_) => _refresh()),
+    );
 
-    BluetoothCommunication.instance.isReady.listen((isReady) {
-      if (isReady != _isCommunicationReady) {
-        _isCommunicationReady = isReady;
-        _refresh();
-      }
-    });
+    _streamSubscriptions.add(
+      BluetoothCommunication.instance.isReady.listen(
+            (isReady) {
+          if (isReady != _isCommunicationReady) {
+            _isCommunicationReady = isReady;
+            _refresh();
+          }
+        },
+      ),
+    );
   }
 
   void _refresh() {
@@ -88,5 +101,12 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _streamSubscriptions.forEach((subscription) => subscription.cancel());
   }
 }

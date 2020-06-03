@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -22,18 +24,26 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
 
   bool _isScanning = false;
 
+  List<StreamSubscription> _streamSubscriptions = List();
+
   @override
   void initState() {
     super.initState();
 
     // add connected devices
-    _flutterBlue.connectedDevices.asStream().listen(_addConnectedDevices);
+    _streamSubscriptions.add(
+      _flutterBlue.connectedDevices.asStream().listen(_addConnectedDevices),
+    );
 
     // add scanning results
-    _flutterBlue.scanResults.listen(_addScanResults);
+    _streamSubscriptions.add(
+      _flutterBlue.scanResults.listen(_addScanResults),
+    );
 
     // listen for scanning event
-    _flutterBlue.isScanning.listen(_onScanningEvent);
+    _streamSubscriptions.add(
+      _flutterBlue.isScanning.listen(_onScanningEvent),
+    );
 
     // start scanning
     _startScan();
@@ -189,5 +199,12 @@ class _FindDevicesPageState extends State<FindDevicesPage> {
       ),
       floatingActionButton: _buildFloatingActionButton(),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _streamSubscriptions.forEach((subscription) => subscription.cancel());
   }
 }
