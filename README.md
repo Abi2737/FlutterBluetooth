@@ -1,11 +1,11 @@
 # flutterbluetoooth
 
-Send ble commands to HM-10
-Discover ble devices
-Connect to a ble device
-See all the characteristics of a ble device
-Select a ble device
-Communicate with the selected device
+Send ble commands to HM-10:
+* Discover ble devices
+* Connect to a ble device
+* See all the characteristics of a ble device
+* Select a ble device
+* Communicate with the selected device
 
 
 ## Getting Started
